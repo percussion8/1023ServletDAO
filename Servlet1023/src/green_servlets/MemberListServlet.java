@@ -30,7 +30,8 @@ public class MemberListServlet extends HttpServlet {
 			throws ServletException, IOException {
 		try {
 			ServletContext sc = this.getServletContext();
-			Connection conn = (Connection)sc.getAttribute("conn");
+			MemberDao memberDao = (MemberDao) sc.getAttribute("memberDao");
+			//Connection conn = (Connection)sc.getAttribute("conn");
 			
 			//MemberDao객체 생성, 참조변수 memberDao
 			//setConnection메서드 호출 (파라미터는 상단의 conn)
@@ -38,8 +39,8 @@ public class MemberListServlet extends HttpServlet {
 			//첫번째 매개변수 "members", 두번째 매개변수 "memberDao의 메서드 selectList호출한 결과
 			//response.setContentTye("text/html; charet=utf-8")
 			//requestDispa를 이용하여 member폴도하위의 memberlist.jsp연결 include형태로 전달
-			MemberDao memberDao = new MemberDao();
-			memberDao.setConnection(conn);
+			//MemberDao memberDao = new MemberDao();
+			//memberDao.setConnection(conn);
 			request.setAttribute("members", memberDao.selectList());
 			response.setContentType("text/html;charset=utf-8");
 			RequestDispatcher rd = request.getRequestDispatcher(

@@ -34,15 +34,16 @@ public class MemberAddServlet extends HttpServlet {
 		
 		try {
 			ServletContext sc = this.getServletContext();
-			Connection connection = (Connection)sc.getAttribute("conn");
+			MemberDao memberDao = (MemberDao) sc.getAttribute("memberDao");
+			//Connection connection = (Connection)sc.getAttribute("conn");
 			//MemberDao객체 생성, 참조변수 memberDao
 			//setConnection메서드 호출 (파라미터는 상단의 conn)
 			//memberDao의 insert메서드 호출
 			//호출시 new Member객체 생성하여 setter체인으로 값 전달
 			//response, sendRedirect("list")
-			MemberDao memberDao = new MemberDao();
-			memberDao.setConnection(connection);
-			System.out.println("커넥션연결"); //됨
+//			MemberDao memberDao = new MemberDao();
+//			memberDao.setConnection(connection);
+//			System.out.println("커넥션연결"); //됨
 			memberDao.insert(new Member()
 					.setName(request.getParameter("name"))
 					.setPassword(request.getParameter("password"))

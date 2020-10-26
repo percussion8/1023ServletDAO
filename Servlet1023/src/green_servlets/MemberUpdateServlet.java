@@ -31,15 +31,10 @@ public class MemberUpdateServlet extends HttpServlet {
 
 		try {
 			ServletContext sc = this.getServletContext();
-			conn = (Connection)sc.getAttribute("conn");
-
-			MemberDao memberDao = new MemberDao();
-			memberDao.setConnection(conn);
-			
-			Member member = memberDao.selectOne(
-					Integer.parseInt(request.getParameter("no"))
-					);
+			MemberDao memberDao = (MemberDao) sc.getAttribute("memberDao");
+			Member member = memberDao.selectOne(Integer.parseInt(request.getParameter("no")));
 			request.setAttribute("member", member);
+
 			RequestDispatcher rd = request.getRequestDispatcher(
 						"/NewMember/MemberUpdateForm.jsp"
 					);
@@ -79,8 +74,7 @@ public class MemberUpdateServlet extends HttpServlet {
 			//update메서드 호출, 파라미터 member객체 생성과 setter체인
 			//setter체인의 파라미터는 integer.ParseInt(request.getpara("no"), setname, setemail
 			//response.sendredirect
-			MemberDao memberDao = new MemberDao();
-			memberDao.setConnection(conn);
+			MemberDao memberDao = (MemberDao) sc.getAttribute("memberDao");
 			memberDao.update(new Member()
 					.setNo(Integer.parseInt(request.getParameter("no")))
 					.setName(request.getParameter("name"))

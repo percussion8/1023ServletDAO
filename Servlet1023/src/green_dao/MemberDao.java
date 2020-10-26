@@ -13,20 +13,24 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+
 import green_vo.Member;
+import util.DBconnectionPool;
 
 public class MemberDao {
-	Connection connection;
+	DBconnectionPool connPool;
 	
-	public void setConnection(Connection connection) {
-		this.connection = connection;
+	public void setConnection(DBconnectionPool connPool) {
+		this.connPool = connPool;
 	}
 	
 	public List<Member> selectList() throws Exception{
+		Connection connection  =null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		try {
 			
+			connection = connPool.getConnection();
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery("select mno, mname, email, cre_date" + " from members" + " order by mno asc");
 			ArrayList<Member> members = new ArrayList<Member>();
@@ -73,11 +77,14 @@ public class MemberDao {
 	
 	public int insert(Member member) throws Exception{
 		PreparedStatement stmt =null;
+		Connection connection  =null;
 		System.out.println(member.getName());
 		System.out.println(member.getEmail());
 		System.out.println(member.getPassword());
 		
+		
 		try {
+			connection = connPool.getConnection();
 			stmt =connection.prepareStatement("insert into members (email, pwd, mname, cre_date, mod_date) values(?,?,?, now(), now())");
 			stmt.setString(1, member.getEmail());
 			stmt.setString(2, member.getPassword());
@@ -98,7 +105,9 @@ public class MemberDao {
 	
 	public int update(Member member) throws Exception{
 		PreparedStatement stmt = null;
+		 Connection connection  =null;
 		try {
+			connection = connPool.getConnection();
 			stmt = connection.prepareStatement("update members set email=?, mname=?, mod_date=now() where mno=?");
 			stmt.setString(1, member.getEmail());
 			stmt.setString(2, member.getName());
@@ -119,7 +128,9 @@ public class MemberDao {
 	public Member selectOne(int no) throws Exception{
 		Statement stmt = null;
 		ResultSet rs = null;
+		 Connection connection  =null;
 		try {
+			connection = connPool.getConnection();
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery("select mno,email,mname, cre_date from members "
 					+ "where mno =" + no);
@@ -181,7 +192,50 @@ public class MemberDao {
 //		}
 //	}
 	
+	public int delete (int no) throws Exception {
+		   Connection connection  =null;
+		   Statement stmt = null;
+		   try {
+			   connection = connPool.getConnection();
+			   stmt =connection.createStatement();
+			   return stmt.executeUpdate("delete from members where mno =" + no);
+			   
+		   }catch(Exception e) {
+			   throw e;		   
+		   }finally {
+			   
+			   try {if (stmt != null) stmt.close();} catch(Exception e) {}
+		      // try {if (connection != null) connection.close();} catch(Exception e) {}
+			   
+		   }
+	}
 	
-	
+		   public Member exist(String email, String password) throws Exception {
+				Connection connection  =null;
+				PreparedStatement stmt =null;
+				ResultSet rs = null;
+				try {
+					connection = connPool.getConnection();
+					stmt = connection.prepareStatement("select mname, email from members where email=? and pwd=?");
+					stmt.setString(1, email);
+					stmt.setString(2, password);
+					rs = stmt.executeQuery();
+					if(rs.next()) {
+						return new Member()
+								.setName(rs.getString("mname"))
+								.setEmail(rs.getString("email"));
+					}else {
+						return null;
+					}
+					
+				}catch(Exception e) {
+					throw e;
+				}finally {
+					try {if(rs!=null) rs.close();} catch(Exception e) {}
+					try {if(stmt!=null) stmt.close();} catch(Exception e) {}
+					//다 사용하면 Connection 객체 반환, DBConnectionPool에 추가됨
+					if(connection != null) connPool.returnConnection(connection);
+				}
+			}
 	
 }
